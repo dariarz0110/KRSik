@@ -1,53 +1,96 @@
-// Base API URL
-const BASE_API_URL = "https://api-krs.ms.gov.pl/api/krs/OdpisPelny";
+const BASE_API_URL = "https://api-krs.ms.gov.pl/api/krs/OdpisAktualny";
 
-// Button, Input, and Data Container Elements
+const DATA_NOT_FOUND_MESSAGE = "Weź się popraw człowieku";
+
 const fetchDataBtn = document.getElementById("fetch-data-btn");
 const krsInput = document.getElementById("krs-input");
 const dataContainer = document.getElementById("data-container");
 
-// Fetch API Data and Display
-async function fetchAndDisplayData() {
-    // Get the KRS number entered by the user
-    const krsNumber = krsInput.value.trim();
 
-    // Validate input
+async function fetchAndDisplayData() {
+    const krsNumber = krsInput.value.trim();
     if (!krsNumber) {
-        alert("Please enter a valid KRS number.");
+        alert(DATA_NOT_FOUND_MESSAGE);
         return;
     }
-
-    // Construct the full API URL
     const apiUrl = `${BASE_API_URL}/${krsNumber}?rejestr=P&format=json`;
-
     try {
-        // Fetch data from the API
         const response = await fetch(apiUrl);
-
-        // Handle HTTP errors
         if (!response.ok) {
             throw new Error(`API Error: ${response.status} - ${response.statusText}`);
         }
-
         const data = await response.json();
 
-        // Display the data
-        displayData(data);
-
+        const formattedData = extractData(data);
+        showDataContainer();
+        displayData(formattedData);
     } catch (error) {
         console.error(error);
-        dataContainer.innerHTML = `<p>Error: ${error.message}</p>`;
+        showErrorMessage(DATA_NOT_FOUND_MESSAGE);
     }
 }
 
-// Display Data in HTML
-function displayData(data) {
-    // Clear existing content
-    dataContainer.innerHTML = "";
-
-    // Render JSON data as formatted text
-    dataContainer.textContent = JSON.stringify(data, null, 2);
+function extractField(data, path, defaultValue = "N/A") {
+    return path.split('.').reduce((acc, key) => acc?.[key], data) ?? defaultValue;
 }
 
-// Attach Click Event Listener to Button
+function extractData(data) {
+    const danePodmiotu = extractField(data, "odpis.dane.dzial1.danePodmiotu");
+    const kapitalZakladowy = extractField(data, "odpis.dane.dzial1.kapital.wysokoscKapitaluZakladowego");
+    const adres = extractField(data, "odpis.dane.dzial1.siedzibaIAdres.adres");
+
+    let result = "";
+
+    if (danePodmiotu?.nazwa) {
+        result += `Nazwa: ${danePodmiotu.nazwa}\n`;
+    } else {
+        result += "Nazwa nie została odnaleziona.\n";
+    }
+    if (danePodmiotu?.identyfikatory.nip) {
+        result += `NIP: ${danePodmiotu?.identyfikatory.nip}\n`;
+    } else {
+        result += "NIP nie została odnaleziony.\n";
+    }
+    if (danePodmiotu?.identyfikatory.regon) {
+        result += `REGON: ${danePodmiotu?.identyfikatory.regon}\n`;
+    } else {
+        result += "REGON nie została odnaleziony.\n";
+    }
+
+    if (adres && adres.ulica && adres.nrDomu && adres.kodPocztowy && adres.miejscowosc) {
+        result += `Adres: ${adres.ulica} ${adres.nrDomu}, ${adres.kodPocztowy} ${adres.miejscowosc}\n`;
+    } else {
+        result += "Adres nie został odnaleziony.\n";
+    }
+
+    if (kapitalZakladowy?.wartosc && kapitalZakladowy?.waluta) {
+        result += `Wysokość Kapitału Zakładowego: ${kapitalZakladowy.wartosc} ${kapitalZakladowy.waluta}\n`;
+    } else {
+        result += "Wysokość kapitału zakładowego nie została odnaleziona.\n";
+    }
+
+    return result;
+}
+
+function displayData(data) {
+    dataContainer.innerHTML = "";
+    dataContainer.textContent = data;
+}
+
+function showDataContainer() {
+    if (dataContainer) {
+        dataContainer.hidden = false;
+    }
+}
+
+function showErrorMessage(message) {
+    dataContainer.innerHTML = `<p>${message}</p>`;
+}
+
 fetchDataBtn.addEventListener("click", fetchAndDisplayData);
+
+krsInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+        fetchDataBtn.click();
+    }
+});

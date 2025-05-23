@@ -3,14 +3,17 @@ body {
     line-height: 1.6;
     margin: 20px;
     padding: 10px;
+    background: #dfe3e4;
 }
 
 h1 {
-    color: #333;
+    color: #ffffff;
+    background-color: #425e68; /* Grey background */
+    text-align: center;
 }
 
 label, input, button {
-    display: block;
+    display: flex;
     margin: 10px 0;
     font-size: 16px;
 }
@@ -18,12 +21,13 @@ label, input, button {
 input {
     padding: 8px;
     width: 300px;
-    border: 1px solid #ccc;
+    border: 2px solid #ccc;
     border-radius: 4px;
+    background: #dfe3e4;
 }
 
 button {
-    background-color: #007BFF;
+    background-color: #425e68;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -32,14 +36,25 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #647e88;
 }
 
 #data-container {
     margin-top: 20px;
     padding: 10px;
     border: 1px solid #ddd;
-    background-color: #f9f9f9;
+    background-color: #98adb6;
     white-space: pre-wrap; /* Render line breaks for JSON */
     font-family: monospace;
 }
+
+footer {
+    flex: 1;
+    background-color: grey; /* Grey background */
+    color: white; /* White text color */
+    text-align: center;
+    padding: 10px 0; /* Padding for space inside footer */
+    position: relative; /* Default position */
+    bottom: 0; /* Always stays attached to the bottom of the wrapper */
+}
+
