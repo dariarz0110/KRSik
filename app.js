@@ -8,7 +8,7 @@ const dataContainer = document.getElementById("data-container");
 
 
 async function fetchAndDisplayData() {
-    const krsNumber = krsInput.value.trim();
+    const krsNumber = krsInput.value.trim().padStart(14, "0");
     if (!krsNumber) {
         alert(DATA_NOT_FOUND_MESSAGE);
         return;
@@ -51,6 +51,13 @@ function extractData(data) {
     } else {
         result += "NIP nie została odnaleziony.\n";
     }
+
+    if (data?.odpis?.naglowekA?.numerKRS) {
+        result += `KRS: ${data.odpis.naglowekA.numerKRS}\n`;
+    } else {
+        result += "KRS nie został odnaleziony.\n";
+    }
+
     if (danePodmiotu?.identyfikatory.regon) {
         result += `REGON: ${danePodmiotu?.identyfikatory.regon}\n`;
     } else {
