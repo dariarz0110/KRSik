@@ -37,6 +37,7 @@ function extractField(data, path, defaultValue = "N/A") {
 function extractData(data) {
     const danePodmiotu = extractField(data, "odpis.dane.dzial1.danePodmiotu");
     const kapitalZakladowy = extractField(data, "odpis.dane.dzial1.kapital.wysokoscKapitaluZakladowego");
+    const kapitalPokryty = extractField(data, "odpis.dane.dzial1.kapital.czescKapitaluWplaconegoPokrytego");
     const adres = extractField(data, "odpis.dane.dzial1.siedzibaIAdres.adres");
 
     let result = "";
@@ -71,9 +72,15 @@ function extractData(data) {
     }
 
     if (kapitalZakladowy?.wartosc && kapitalZakladowy?.waluta) {
+
         result += `Wysokość Kapitału Zakładowego: ${kapitalZakladowy.wartosc} ${kapitalZakladowy.waluta}\n`;
     } else {
-        result += "Wysokość kapitału zakładowego nie została odnaleziona.\n";
+        result += "Wysokość kapitału zakładowego: BRAK\n";
+    }
+    if (kapitalPokryty?.wartosc && kapitalPokryty?.waluta) {
+        result += `Wysokość Kapitału Wpłaconego: ${kapitalPokryty.wartosc} ${kapitalPokryty.waluta}\n`;
+    } else {
+        result += "Wysokość kapitału Wpłaconego: BRAK\n";
     }
 
     return result;
@@ -101,3 +108,4 @@ krsInput.addEventListener("keypress", (event) => {
         fetchDataBtn.click();
     }
 });
+
